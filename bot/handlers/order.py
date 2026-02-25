@@ -29,6 +29,11 @@ async def process_address(message: Message, state: FSMContext):
     name = data.get("name")
     address = message.text
 
+from bot.database import add_order
+
+# сохраняем заказ в базу
+add_order(name, address)
+    
     await message.answer(
         f"Спасибо, {name}!\n\n"
         f"Ваш заказ оформлен.\n"
