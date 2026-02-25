@@ -1,27 +1,32 @@
 import asyncio
-from fastapi import FastAPI
+import logging
+
 from aiogram import Bot, Dispatcher
+from aiogram.enums import ParseMode
+from aiogram.client.default import DefaultBotProperties
+
+from bot.handlers import start
+from bot.handlers import order
 
 from bot.config import BOT_TOKEN
-from bot.handlers.start import router as start_router
 
-from bot.handlers.order import router as order_router
 
-app = FastAPI()
+async def main():
+    logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token=BOT_TOKEN)
-dp = Dispatcher()
+    bot = Bot(
+        token=BOT_TOKEN,
+        default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+    )
 
-dp.include_router(start_router)
-dp.include_router(order_router)
+    dp = Dispatcher()
 
-@app.get("/")
-async def root():
-    return {"status": "Bot is running"}
+    # Подключаем роутеры
+    dp.include_router(start.router)
+    dp.include_router(order.router)
 
-async def start_bot():
     await dp.start_polling(bot)
 
-@app.on_event("startup")
-async def on_startup():
-    asyncio.create_task(start_bot())
+
+if __name__ == "__main__":
+    asyncio.run(main())
